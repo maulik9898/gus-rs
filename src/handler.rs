@@ -5,7 +5,7 @@ use crate::GusCli;
 use crate::Profile;
 use color_eyre::eyre::Context;
 use color_eyre::Result;
-use inquire::Select;
+use inquire::Text;
 use sqlx::{Pool, Sqlite};
 
 pub struct GusHandler {
@@ -28,13 +28,13 @@ impl GusHandler {
             Commands::Add(profile) => self.add(profile).await?,
             Commands::Activate(args) => self.activate(&args.profile).await?,
             Commands::Delete => self.delete().await?,
+            Commands::Edit => self.edit().await?,
         }
         Ok(())
     }
 
     pub async fn list(&self) -> Result<()> {
-        let profiles = api::list_all_profiles(&self.db).await?;
-        let ans = Select::new("Select any one profile", profiles).prompt()?;
+        let ans = utils::show_list(&self.db).await?;
         utils::update_or_create_gitconfig(&self.curr_path, &ans.name, &ans.email).await?;
         println!("Activated {} profile", ans);
         Ok(())
@@ -56,10 +56,26 @@ impl GusHandler {
     }
 
     pub async fn delete(&self) -> Result<()> {
-        let profiles = api::list_all_profiles(&self.db).await?;
-        let ans = Select::new("Select any one profile", profiles).prompt()?;
+        let ans = utils::show_list(&self.db).await?;
         api::delete_profile(&self.db, &ans.profile).await?;
         println!("Deleted {} profile", ans);
+        Ok(())
+    }
+
+    pub async fn edit(&self) -> Result<()> {
+        let ans = utils::show_list(&self.db).await?;
+        let name = Text::new("Enter user name ")
+            .with_default(&ans.name)
+            .prompt()?;
+
+        let email = Text::new("Enter email").with_default(&ans.email).prompt()?;
+        let profile = Profile {
+            profile: ans.profile,
+            name,
+            email,
+        };
+        api::update_profile(&self.db, &profile).await?;
+        println!("Updated {} profile", profile);
         Ok(())
     }
 }

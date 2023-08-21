@@ -3,9 +3,12 @@ use color_eyre::{
     Result,
 };
 use ini::Ini;
+use inquire::Select;
 use sqlx::{migrate::MigrateDatabase, Pool, Sqlite, SqlitePool};
 use std::path::PathBuf;
 use tokio::fs;
+
+use crate::{api, Profile};
 
 pub async fn get_sqlite_path() -> Result<PathBuf> {
     let mut config_path = dirs::config_dir().with_context(|| "No config dir found")?;
@@ -65,4 +68,10 @@ pub async fn update_or_create_gitconfig(curr_path: &str, name: &str, email: &str
     config.write_to_file(curr_path)?;
 
     Ok(())
+}
+
+pub async fn show_list(db: &SqlitePool) -> Result<Profile> {
+    let profiles = api::list_all_profiles(db).await?;
+    let ans = Select::new("Select any one profile", profiles).prompt()?;
+    Ok(ans)
 }

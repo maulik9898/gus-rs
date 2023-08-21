@@ -39,3 +39,15 @@ pub async fn delete_profile(db: &SqlitePool, profile_name: &str) -> Result<()> {
         .await?;
     Ok(())
 }
+
+pub async fn update_profile(db: &SqlitePool, profile: &Profile) -> Result<()> {
+    sqlx::query!(
+        "UPDATE profiles SET name = ?1 , email = ?2 WHERE profile = ?3",
+        profile.name,
+        profile.email,
+        profile.profile
+    )
+    .execute(db)
+    .await?;
+    Ok(())
+}
