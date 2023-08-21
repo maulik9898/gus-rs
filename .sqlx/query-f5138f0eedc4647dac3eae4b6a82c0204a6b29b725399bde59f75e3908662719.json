@@ -1,0 +1,32 @@
+{
+  "db_name": "SQLite",
+  "query": "Select * from profiles ",
+  "describe": {
+    "columns": [
+      {
+        "name": "profile",
+        "ordinal": 0,
+        "type_info": "Text"
+      },
+      {
+        "name": "name",
+        "ordinal": 1,
+        "type_info": "Text"
+      },
+      {
+        "name": "email",
+        "ordinal": 2,
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Right": 0
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "f5138f0eedc4647dac3eae4b6a82c0204a6b29b725399bde59f75e3908662719"
+}
