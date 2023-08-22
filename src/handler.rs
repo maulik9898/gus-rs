@@ -26,7 +26,7 @@ impl GusHandler {
         match &self.cli.command {
             Commands::List => self.list().await?,
             Commands::Add(profile) => self.add(profile).await?,
-            Commands::Activate(args) => self.activate(&args.profile).await?,
+            Commands::Ac(args) => self.activate(&args.profile).await?,
             Commands::Delete => self.delete().await?,
             Commands::Edit => self.edit().await?,
         }

@@ -17,10 +17,15 @@ pub struct GusCli {
 
 #[derive(Subcommand, Debug)]
 enum Commands {
+    /// List all profile and select
     List,
+    /// Add new profile
     Add(Profile),
-    Activate(ActivateArgs),
+    /// Activate profile
+    Ac(ActivateArgs),
+    /// Delete profile
     Delete,
+    /// Edit profile
     Edit,
 }
 
