@@ -20,7 +20,11 @@ enum Commands {
     /// List all profile and select
     List,
     /// Add new profile
-    Add(Profile),
+    A(Profile),
+
+    /// Add new profile interactively
+    Add,
+
     /// Activate profile
     Ac(ActivateArgs),
     /// Delete profile

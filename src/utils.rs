@@ -2,10 +2,15 @@ use color_eyre::{
     eyre::{bail, Context, ContextCompat},
     Result,
 };
+use crossterm::{
+    cursor,
+    terminal::{Clear, ClearType},
+    ExecutableCommand,
+};
 use ini::Ini;
-use inquire::Select;
+use inquire::{MultiSelect, Select};
 use sqlx::{migrate::MigrateDatabase, Pool, Sqlite, SqlitePool};
-use std::path::PathBuf;
+use std::{io::Cursor, path::PathBuf};
 use tokio::fs;
 
 use crate::{api, Profile};
@@ -74,4 +79,25 @@ pub async fn show_list(db: &SqlitePool) -> Result<Profile> {
     let profiles = api::list_all_profiles(db).await?;
     let ans = Select::new("Select any one profile", profiles).prompt()?;
     Ok(ans)
+}
+
+pub async fn show_list_multiple(db: &SqlitePool) -> Result<Vec<Profile>> {
+    let profiles = api::list_all_profiles(db).await?;
+    let ans = MultiSelect::new("Select any one profile", profiles).prompt()?;
+    Ok(ans)
+}
+
+pub fn clear_last_propmt(lines: u16) -> Result<()> {
+    if lines == 0 {
+        return Ok(());
+    }
+    let mut stdout = std::io::stdout();
+    stdout.execute(cursor::MoveUp(lines))?;
+
+    stdout.execute(Clear(ClearType::CurrentLine))?;
+
+    for _i in 1..lines {
+        stdout.execute(Clear(ClearType::FromCursorDown))?;
+    }
+    Ok(())
 }

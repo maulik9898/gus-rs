@@ -40,6 +40,18 @@ pub async fn delete_profile(db: &SqlitePool, profile_name: &str) -> Result<()> {
     Ok(())
 }
 
+pub async fn delete_profiles(db: &SqlitePool, profiles: &Vec<Profile>) -> Result<()> {
+    for profile in profiles {
+        sqlx::query!(
+            r#"DELETE FROM profiles WHERE profile = ?1"#,
+            profile.profile
+        )
+        .execute(db)
+        .await?;
+    }
+    Ok(())
+}
+
 pub async fn update_profile(db: &SqlitePool, profile: &Profile) -> Result<()> {
     sqlx::query!(
         "UPDATE profiles SET name = ?1 , email = ?2 WHERE profile = ?3",

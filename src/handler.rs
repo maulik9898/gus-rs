@@ -5,8 +5,10 @@ use crate::GusCli;
 use crate::Profile;
 use color_eyre::eyre::Context;
 use color_eyre::Result;
-use inquire::Text;
+use inquire::{Confirm, Text};
 use sqlx::{Pool, Sqlite};
+use std::io;
+use std::io::Write;
 
 pub struct GusHandler {
     db: Pool<Sqlite>,
@@ -25,10 +27,39 @@ impl GusHandler {
     pub async fn handle_commands(&self) -> Result<()> {
         match &self.cli.command {
             Commands::List => self.list().await?,
-            Commands::Add(profile) => self.add(profile).await?,
+            Commands::A(profile) => self.add(profile).await?,
             Commands::Ac(args) => self.activate(&args.profile).await?,
+            Commands::Add => self.add_interactively().await?,
             Commands::Delete => self.delete().await?,
             Commands::Edit => self.edit().await?,
+        }
+        Ok(())
+    }
+
+    pub async fn add_interactively(&self) -> Result<()> {
+        loop {
+            let name = Text::new("Enter user name ").prompt()?;
+
+            let email = Text::new("Enter email").prompt()?;
+
+            let profile = Text::new("Enter profile name").prompt()?;
+
+            let profile = Profile {
+                name,
+                email,
+                profile,
+            };
+
+            api::add_profile(&self.db, &profile).await?;
+            println!("Added {} profile", profile);
+
+            let ans = Confirm::new("Do you want to enter new profile")
+                .with_default(false)
+                .prompt()?;
+            utils::clear_last_propmt(5)?;
+            if !ans {
+                break;
+            }
         }
         Ok(())
     }
@@ -56,9 +87,11 @@ impl GusHandler {
     }
 
     pub async fn delete(&self) -> Result<()> {
-        let ans = utils::show_list(&self.db).await?;
-        api::delete_profile(&self.db, &ans.profile).await?;
-        println!("Deleted {} profile", ans);
+        let ans = utils::show_list_multiple(&self.db).await?;
+        api::delete_profiles(&self.db, &ans).await?;
+        for profile in ans {
+            println!("Deleted {} profile", { profile })
+        }
         Ok(())
     }
 
