@@ -10,7 +10,7 @@ use crossterm::{
 use ini::Ini;
 use inquire::{MultiSelect, Select};
 use sqlx::{migrate::MigrateDatabase, Pool, Sqlite, SqlitePool};
-use std::{io::Cursor, path::PathBuf};
+use std::{path::PathBuf};
 use tokio::fs;
 
 use crate::{api, Profile};

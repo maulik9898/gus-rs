@@ -7,8 +7,8 @@ use color_eyre::eyre::Context;
 use color_eyre::Result;
 use inquire::{Confirm, Text};
 use sqlx::{Pool, Sqlite};
-use std::io;
-use std::io::Write;
+
+
 
 pub struct GusHandler {
     db: Pool<Sqlite>,
